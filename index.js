@@ -236,22 +236,21 @@ function getter(options) {
 				// since Google doesn't put there '.svg' suffix for some reason
 				// (but does that for other extensions).
 				var re = new RegExp([
-					"\\s*font-family:\\s*'(?<family>[^']+)';",
-					"\\s*font-style:\\s*(?<style>\\w+);",
-					"\\s*font-weight:\\s*(?<weight>\\w+);",
-					".*(?:\\s*font-stretch:\\s(?<stretch>[^;]+);)?",
-					"\\s*src:(?<src>[^;]*);",
-					".*(?:unicode-range:(?<range>[^;]+);)?",
+					"\\s*font-family:\\s*'([^']+)';",
+					"\\s*font-style:\\s*(\\w+);",
+					"\\s*font-weight:\\s*(\\w+);",
+					".*(?:\\s*font-stretch:\\s([^;]+);)?",
+					"\\s*src:([^;]*);",
+					".*(?:unicode-range:([^;]+);)?",
 				].join(''), 'm');
 
 				let found = block.match(re, 'm');
 				if (found === null) {
 					throw new Error("faild to match block");
 				}
-				return formatData(found.groups);
+				return formatData.apply(null, found);
 
-				function formatData(data) {
-					const { family, style, weight, stretch, src, range } = data;
+				function formatData(block, family, style, weight, stretch, src, range) {
 					var name = [family, style, weight].join('-') + '.' + ext;
 					var url = src.match(/url\(([^)]+)\)/)[1];
 					var locals = src.match(/local\([^)]+\)/g) || [];
